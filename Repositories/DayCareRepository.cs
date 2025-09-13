@@ -17,6 +17,19 @@ namespace DayCareApi.Repositories
             _connectionString = configuration.GetConnectionString("DefaultConnection");
         }
 
+        // This is the private method that was causing the error. It must be inside this class.
+        private int MapBillTypeToInt(string billType)
+        {
+            switch (billType)
+            {
+                case "Monthly": return 1;
+                case "Quarterly": return 2;
+                case "Half Yearly": return 3;
+                case "Annually": return 4;
+                default: return 0;
+            }
+        }
+
         public async Task<int> AddChildAsync(DayCareReimbursement model, int initiatorEmpId)
         {
             using (var connection = new SqlConnection(_connectionString))
@@ -42,7 +55,7 @@ namespace DayCareApi.Repositories
                     cmd.Parameters.AddWithValue("@AdmissionType", model.AdmissionType);
                     cmd.Parameters.AddWithValue("@AdmissionTypeOthers", model.AdmissionTypeOthers != null ? (object)model.AdmissionTypeOthers : DBNull.Value);
                     cmd.Parameters.AddWithValue("@DayCareFee", model.DayCareFee);
-                    cmd.Parameters.AddWithValue("@BillType", model.BillType);
+                    cmd.Parameters.AddWithValue("@BillType", MapBillTypeToInt(model.BillType ?? string.Empty));
                     cmd.Parameters.AddWithValue("@NoOfInvoice", model.NoOfInvoice);
                     cmd.Parameters.AddWithValue("@InvoiceDate1", model.InvoiceDate1.HasValue ? (object)model.InvoiceDate1.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@InvoiceDate2", model.InvoiceDate2.HasValue ? (object)model.InvoiceDate2.Value : DBNull.Value);
@@ -94,7 +107,7 @@ namespace DayCareApi.Repositories
                     cmd.Parameters.AddWithValue("@ModeOfPaymentOthers", model.ModeOfPaymentOthers != null ? (object)model.ModeOfPaymentOthers : DBNull.Value);
                     cmd.Parameters.AddWithValue("@HardCopy", model.HardCopy);
                     cmd.Parameters.AddWithValue("@TermDuration", model.TermDuration);
-                    cmd.Parameters.AddWithValue("@BillType", model.BillType);
+                    cmd.Parameters.AddWithValue("@BillType", MapBillTypeToInt(model.BillType ?? string.Empty));
                     cmd.Parameters.AddWithValue("@EntryDate", DateTime.Now);
                     cmd.Parameters.AddWithValue("@Quarter", quarter);
                     cmd.Parameters.AddWithValue("@FinYear", year);
@@ -137,31 +150,15 @@ namespace DayCareApi.Repositories
             }
         }
 
-        public async Task<int> GetQuarterAsync(DateTime startDate, DateTime endDate)
-        {
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                using (var cmd = new SqlCommand("DayCareSupportReimbursement_GetQuarter", connection))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@StartDate", startDate);
-                    cmd.Parameters.AddWithValue("@EndDate", endDate);
-                    await connection.OpenAsync();
-                    var result = await cmd.ExecuteScalarAsync();
-                    return Convert.ToInt32(result);
-                }
-            }
-        }
-
         public async Task<IEnumerable<DayCareReimbursement>> GetByEmployeeIdAsync(int initiatorEmpId)
         {
             var reimbursements = new List<DayCareReimbursement>();
             using (var connection = new SqlConnection(_connectionString))
             {
-                using (var cmd = new SqlCommand("DayCareSupportReimbursement_GetDataByEmpID", connection))
+                using (var cmd = new SqlCommand("DayCareSupportReimbursement_GetDataByDayCareData", connection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@InitiatorMEmpID", initiatorEmpId);
+                    cmd.Parameters.AddWithValue("@EmpID", initiatorEmpId); 
                     await connection.OpenAsync();
                     using (var reader = await cmd.ExecuteReaderAsync())
                     {
@@ -195,8 +192,23 @@ namespace DayCareApi.Repositories
             }
             return reimbursements;
         }
+
+        public async Task<int> GetQuarterAsync(DateTime startDate, DateTime endDate)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                using (var cmd = new SqlCommand("DayCareSupportReimbursement_GetQuarter", connection))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@StartDate", startDate);
+                    cmd.Parameters.AddWithValue("@EndDate", endDate);
+                    await connection.OpenAsync();
+                    var result = await cmd.ExecuteScalarAsync();
+                    return Convert.ToInt32(result);
+                }
+            }
+        }
         
-        // New method to get hardcoded Bill Type values
         public Task<IEnumerable<string>> GetBillTypesAsync()
         {
             var billTypes = new List<string> { "Monthly", "Quarterly", "Half Yearly", "Annually" };
