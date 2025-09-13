@@ -158,7 +158,7 @@ namespace DayCareApi.Repositories
             var reimbursements = new List<DayCareReimbursement>();
             using (var connection = new SqlConnection(_connectionString))
             {
-                using (var cmd = new SqlCommand("DayCareSupportReimbursement_GetDataByDayCareData", connection))
+                using (var cmd = new SqlCommand("DayCareSupportReimbursement_GetDataByEmpID", connection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@InitiatorMEmpID", initiatorEmpId);
