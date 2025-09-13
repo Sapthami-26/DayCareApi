@@ -19,7 +19,7 @@ namespace DayCareApi.Repositories
 
         public async Task<int> AddChildAsync(DayCareReimbursement model, int initiatorEmpId)
         {
-            using (var connection = new Microsoft.Data.SqlClient.SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString))
             {
                 using (var cmd = new SqlCommand("DayCareSupportReimbursement_InsertUpdateDataInChild", connection))
                 {
@@ -153,7 +153,6 @@ namespace DayCareApi.Repositories
             }
         }
         
-        // Corrected GET method to retrieve data from the database
         public async Task<IEnumerable<DayCareReimbursement>> GetByEmployeeIdAsync(int initiatorEmpId)
         {
             var reimbursements = new List<DayCareReimbursement>();
