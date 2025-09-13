@@ -152,13 +152,13 @@ namespace DayCareApi.Repositories
                 }
             }
         }
-        
+
         public async Task<IEnumerable<DayCareReimbursement>> GetByEmployeeIdAsync(int initiatorEmpId)
         {
             var reimbursements = new List<DayCareReimbursement>();
             using (var connection = new SqlConnection(_connectionString))
             {
-                using (var cmd = new SqlCommand("DayCareSupportReimbursement_GetDataByEmpID", connection))
+                using (var cmd = new SqlCommand("DayCareSupportReimbursement_GetDataByDayCareData", connection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@InitiatorMEmpID", initiatorEmpId);
@@ -194,6 +194,13 @@ namespace DayCareApi.Repositories
                 }
             }
             return reimbursements;
+        }
+        
+        // New method to get hardcoded Bill Type values
+        public Task<IEnumerable<string>> GetBillTypesAsync()
+        {
+            var billTypes = new List<string> { "Monthly", "Quarterly", "Half Yearly", "Annually" };
+            return Task.FromResult<IEnumerable<string>>(billTypes);
         }
     }
 }

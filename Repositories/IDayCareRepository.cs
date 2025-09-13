@@ -13,5 +13,6 @@ namespace DayCareApi.Repositories
         Task<int> UpdateDraftStatusAsync(int rid, int dcid, int choice);
         Task<int> GetQuarterAsync(DateTime startDate, DateTime endDate);
         Task<IEnumerable<DayCareReimbursement>> GetByEmployeeIdAsync(int initiatorEmpId);
+        Task<IEnumerable<string>> GetBillTypesAsync();
     }
 }

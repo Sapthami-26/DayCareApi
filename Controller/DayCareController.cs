@@ -26,6 +26,14 @@ namespace DayCareApi.Controllers
             return Ok(data);
         }
 
+        // GET: api/daycare/billtypes
+        [HttpGet("billtypes")]
+        public async Task<IActionResult> GetBillTypes()
+        {
+            var billTypes = await _dayCareRepository.GetBillTypesAsync();
+            return Ok(billTypes);
+        }
+
         [HttpPost("child")]
         public async Task<IActionResult> AddChild([FromBody] DayCareReimbursement model)
         {
