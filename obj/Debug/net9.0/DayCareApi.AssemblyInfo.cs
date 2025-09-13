@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DayCareApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8ce38356d26985f1741f2f9adecc5a221f947430")]
 [assembly: System.Reflection.AssemblyProductAttribute("DayCareApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DayCareApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

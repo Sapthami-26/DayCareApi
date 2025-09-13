@@ -20,7 +20,7 @@ namespace DayCareApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetReimbursements()
         {
-            var initiatorEmpId = 12345;  // Placeholder for logged-in user ID
+            var initiatorEmpId = 12345;
             var data = await _dayCareRepository.GetByEmployeeIdAsync(initiatorEmpId);
             return Ok(data);
         }
@@ -30,10 +30,8 @@ namespace DayCareApi.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            var initiatorEmpId = 12345;  // Placeholder
+            var initiatorEmpId = 12345;
             var result = await _dayCareRepository.AddChildAsync(model, initiatorEmpId);
-
             return Ok(new { message = "Child data added successfully.", rowsAffected = result });
         }
 
@@ -42,10 +40,8 @@ namespace DayCareApi.Controllers
         {
             if (!ModelState.IsValid || model.RID != rid)
                 return BadRequest("Model is invalid or the RID does not match.");
-
             var result = await _dayCareRepository.UpdateChildAsync(model);
             if (result == 0) return NotFound();
-
             return Ok(new { message = "Child data updated successfully.", rowsAffected = result });
         }
 
@@ -54,7 +50,6 @@ namespace DayCareApi.Controllers
         {
             var result = await _dayCareRepository.DeleteChildAsync(rid, dcid);
             if (result == 0) return NotFound();
-
             return Ok(new { message = "Child data deleted successfully.", rowsAffected = result });
         }
 
@@ -63,7 +58,6 @@ namespace DayCareApi.Controllers
         {
             var result = await _dayCareRepository.UpdateDraftStatusAsync(rid, dcid, 1);
             if (result == 0) return NotFound();
-
             return Ok(new { message = "Reimbursement submitted successfully.", rowsAffected = result });
         }
     }

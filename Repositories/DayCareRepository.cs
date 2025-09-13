@@ -24,11 +24,8 @@ namespace DayCareApi.Repositories
                 using (var cmd = new SqlCommand("DayCareSupportReimbursement_InsertUpdateDataInChild", connection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-
                     var quarter = await GetQuarterAsync(DateTime.Now, DateTime.Now);
                     var year = (quarter == 4) ? DateTime.Now.Year - 1 : DateTime.Now.Year;
-
-                    // Parameters based on documentation
                     cmd.Parameters.AddWithValue("@InstanceID", 0);
                     cmd.Parameters.AddWithValue("@InitiatorMEmpID", initiatorEmpId);
                     cmd.Parameters.AddWithValue("@GroupMGID", 0);
@@ -63,8 +60,7 @@ namespace DayCareApi.Repositories
                     cmd.Parameters.AddWithValue("@FinYear", year);
                     cmd.Parameters.AddWithValue("@IsDraftable", 1);
                     cmd.Parameters.AddWithValue("@IsActive", true);
-                    cmd.Parameters.AddWithValue("@Choice", 1);  // Insert
-
+                    cmd.Parameters.AddWithValue("@Choice", 1);
                     await connection.OpenAsync();
                     return await cmd.ExecuteNonQueryAsync();
                 }
@@ -78,10 +74,8 @@ namespace DayCareApi.Repositories
                 using (var cmd = new SqlCommand("DayCareSupportReimbursement_InsertUpdateDataInChild", connection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-
                     var quarter = await GetQuarterAsync(DateTime.Now, DateTime.Now);
                     var year = (quarter == 4) ? DateTime.Now.Year - 1 : DateTime.Now.Year;
-
                     cmd.Parameters.AddWithValue("@RID", model.RID);
                     cmd.Parameters.AddWithValue("@DCID", model.DCID);
                     cmd.Parameters.AddWithValue("@NameOfChild", model.NameOfChild);
@@ -105,8 +99,7 @@ namespace DayCareApi.Repositories
                     cmd.Parameters.AddWithValue("@Quarter", quarter);
                     cmd.Parameters.AddWithValue("@FinYear", year);
                     cmd.Parameters.AddWithValue("@IsActive", true);
-                    cmd.Parameters.AddWithValue("@Choice", 2);  // Update
-
+                    cmd.Parameters.AddWithValue("@Choice", 2);
                     await connection.OpenAsync();
                     return await cmd.ExecuteNonQueryAsync();
                 }
@@ -122,7 +115,6 @@ namespace DayCareApi.Repositories
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@RID", rid);
                     cmd.Parameters.AddWithValue("@DCID", dcid);
-
                     await connection.OpenAsync();
                     return await cmd.ExecuteNonQueryAsync();
                 }
@@ -139,7 +131,6 @@ namespace DayCareApi.Repositories
                     cmd.Parameters.AddWithValue("@RID", rid);
                     cmd.Parameters.AddWithValue("@DCID", dcid);
                     cmd.Parameters.AddWithValue("@Choice", choice);
-
                     await connection.OpenAsync();
                     return await cmd.ExecuteNonQueryAsync();
                 }
@@ -155,19 +146,55 @@ namespace DayCareApi.Repositories
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@StartDate", startDate);
                     cmd.Parameters.AddWithValue("@EndDate", endDate);
-
                     await connection.OpenAsync();
                     var result = await cmd.ExecuteScalarAsync();
                     return Convert.ToInt32(result);
                 }
             }
         }
-
+        
+        // Corrected GET method to retrieve data from the database
         public async Task<IEnumerable<DayCareReimbursement>> GetByEmployeeIdAsync(int initiatorEmpId)
         {
-            // Assumed implementation as the document does not specify a GET method
-            await Task.CompletedTask;
-            return new List<DayCareReimbursement>();
+            var reimbursements = new List<DayCareReimbursement>();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                using (var cmd = new SqlCommand("DayCareSupportReimbursement_GetDataByEmpID", connection))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@InitiatorMEmpID", initiatorEmpId);
+                    await connection.OpenAsync();
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        while (reader.Read())
+                        {
+                            reimbursements.Add(new DayCareReimbursement
+                            {
+                                RID = reader["RID"] as int?,
+                                DCID = reader["DCID"] as int?,
+                                NameOfChild = reader["NameOfChild"] as string,
+                                DOB = Convert.ToDateTime(reader["DOB"]),
+                                AgeYear = Convert.ToInt32(reader["AgeYear"]),
+                                AgeMonth = Convert.ToInt32(reader["AgeMonth"]),
+                                NameOfDayCare = reader["NameOfDayCare"] as string,
+                                AdmissionType = reader["AdmissionType"] as string,
+                                AdmissionTypeOthers = reader["AdmissionTypeOthers"] as string,
+                                DayCareFee = Convert.ToDecimal(reader["DayCareFee"]),
+                                TermDuration = reader["TermDuration"] as string,
+                                BillType = reader["BillType"] as string,
+                                NoOfInvoice = Convert.ToInt32(reader["NoOfInvoice"]),
+                                InvoiceDate1 = reader["InvoiceDate1"] as DateTime?,
+                                InvoiceDate2 = reader["InvoiceDate2"] as DateTime?,
+                                InvoiceDate3 = reader["InvoiceDate3"] as DateTime?,
+                                ModeOfPayment = reader["ModeOfPayment"] as string,
+                                ModeOfPaymentOthers = reader["ModeOfPaymentOthers"] as string,
+                                HardCopy = Convert.ToBoolean(reader["HardCopy"])
+                            });
+                        }
+                    }
+                }
+            }
+            return reimbursements;
         }
     }
 }

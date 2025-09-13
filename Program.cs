@@ -1,28 +1,21 @@
-using DayCareApi.Repositories;  // 👈 Add this so Program.cs knows about your repository
+using DayCareApi.Repositories;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddScoped<IDayCareRepository, DayCareRepository>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-// Register your repository with Dependency Injection
-builder.Services.AddScoped<IDayCareRepository, DayCareRepository>();
-
+builder.Services.AddControllers();
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

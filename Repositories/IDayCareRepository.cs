@@ -11,8 +11,6 @@ namespace DayCareApi.Repositories
         Task<int> DeleteChildAsync(int rid, int dcid);
         Task<int> UpdateDraftStatusAsync(int rid, int dcid, int choice);
         Task<int> GetQuarterAsync(DateTime startDate, DateTime endDate);
-
-        // Assumed method, as GET operation is not defined in the document
         Task<IEnumerable<DayCareReimbursement>> GetByEmployeeIdAsync(int initiatorEmpId);
     }
 }
