@@ -48,6 +48,8 @@ namespace DayCareApi.Repositories
                     cmd.CommandType = CommandType.StoredProcedure;
                     var quarter = await GetQuarterAsync(DateTime.Now, DateTime.Now);
                     var year = (quarter == 4) ? DateTime.Now.Year - 1 : DateTime.Now.Year;
+
+                    // Add parameters with explicit type definitions
                     cmd.Parameters.AddWithValue("@InstanceID", 0);
                     cmd.Parameters.AddWithValue("@InitiatorMEmpID", initiatorEmpId);
                     cmd.Parameters.AddWithValue("@GroupMGID", 0);
@@ -58,24 +60,21 @@ namespace DayCareApi.Repositories
                     cmd.Parameters.AddWithValue("@DCID", 0);
                     cmd.Parameters.AddWithValue("@NameOfChild", model.NameOfChild);
                     cmd.Parameters.AddWithValue("@DOB", model.DOB);
-                    // Corrected: Explicitly cast numeric values
-                    cmd.Parameters.AddWithValue("@AgeYear", Convert.ToInt32(model.AgeYear));
-                    cmd.Parameters.AddWithValue("@AgeMonth", Convert.ToInt32(model.AgeMonth));
+                    cmd.Parameters.Add(new SqlParameter("@AgeYear", SqlDbType.Int) { Value = model.AgeYear });
+                    cmd.Parameters.Add(new SqlParameter("@AgeMonth", SqlDbType.Int) { Value = model.AgeMonth });
                     cmd.Parameters.AddWithValue("@NameOfDayCare", model.NameOfDayCare);
                     cmd.Parameters.AddWithValue("@AdmissionType", model.AdmissionType);
                     cmd.Parameters.AddWithValue("@AdmissionTypeOthers", model.AdmissionTypeOthers != null ? (object)model.AdmissionTypeOthers : DBNull.Value);
-                    // Corrected: Explicitly cast DayCareFee
-                    cmd.Parameters.AddWithValue("@DayCareFee", Convert.ToDecimal(model.DayCareFee));
-                    cmd.Parameters.AddWithValue("@BillType", (object)MapBillTypeToInt(model.BillType));
-                    // Corrected: Explicitly cast NoOfInvoice
-                    cmd.Parameters.AddWithValue("@NoOfInvoice", Convert.ToInt32(model.NoOfInvoice));
+                    cmd.Parameters.Add(new SqlParameter("@DayCareFee", SqlDbType.Decimal) { Value = model.DayCareFee });
+                    cmd.Parameters.Add(new SqlParameter("@BillType", SqlDbType.Int) { Value = MapBillTypeToInt(model.BillType) });
+                    cmd.Parameters.Add(new SqlParameter("@NoOfInvoice", SqlDbType.Int) { Value = model.NoOfInvoice });
                     cmd.Parameters.AddWithValue("@InvoiceDate1", model.InvoiceDate1.HasValue ? (object)model.InvoiceDate1.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@InvoiceDate2", model.InvoiceDate2.HasValue ? (object)model.InvoiceDate2.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@InvoiceDate3", model.InvoiceDate3.HasValue ? (object)model.InvoiceDate3.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@InvoiceDate4", DBNull.Value);
                     cmd.Parameters.AddWithValue("@ModeOfPayment", model.ModeOfPayment);
                     cmd.Parameters.AddWithValue("@ModeOfPaymentOthers", model.ModeOfPaymentOthers != null ? (object)model.ModeOfPaymentOthers : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@HardCopy", (object)(model.HardCopy ? 1 : 0));
+                    cmd.Parameters.Add(new SqlParameter("@HardCopy", SqlDbType.Bit) { Value = model.HardCopy });
                     cmd.Parameters.AddWithValue("@TermDuration", model.TermDuration);
                     cmd.Parameters.AddWithValue("@EntryDate", DateTime.Now);
                     cmd.Parameters.AddWithValue("@FileIndexID", "");
@@ -101,27 +100,27 @@ namespace DayCareApi.Repositories
                     cmd.CommandType = CommandType.StoredProcedure;
                     var quarter = await GetQuarterAsync(DateTime.Now, DateTime.Now);
                     var year = (quarter == 4) ? DateTime.Now.Year - 1 : DateTime.Now.Year;
-                    cmd.Parameters.AddWithValue("@RID", model.RID);
-                    cmd.Parameters.AddWithValue("@DCID", model.DCID);
+                    
+                    // Add parameters with explicit type definitions
+                    cmd.Parameters.Add(new SqlParameter("@RID", SqlDbType.Int) { Value = model.RID.HasValue ? (object)model.RID.Value : DBNull.Value });
+                    cmd.Parameters.Add(new SqlParameter("@DCID", SqlDbType.Int) { Value = model.DCID.HasValue ? (object)model.DCID.Value : DBNull.Value });
                     cmd.Parameters.AddWithValue("@NameOfChild", model.NameOfChild);
                     cmd.Parameters.AddWithValue("@DOB", model.DOB);
-                    // Corrected: Explicitly cast numeric values
-                    cmd.Parameters.AddWithValue("@AgeYear", Convert.ToInt32(model.AgeYear));
-                    cmd.Parameters.AddWithValue("@AgeMonth", Convert.ToInt32(model.AgeMonth));
+                    cmd.Parameters.Add(new SqlParameter("@AgeYear", SqlDbType.Int) { Value = model.AgeYear });
+                    cmd.Parameters.Add(new SqlParameter("@AgeMonth", SqlDbType.Int) { Value = model.AgeMonth });
                     cmd.Parameters.AddWithValue("@NameOfDayCare", model.NameOfDayCare);
                     cmd.Parameters.AddWithValue("@AdmissionType", model.AdmissionType);
                     cmd.Parameters.AddWithValue("@AdmissionTypeOthers", model.AdmissionTypeOthers != null ? (object)model.AdmissionTypeOthers : DBNull.Value);
-                    // Corrected: Explicitly cast DayCareFee
-                    cmd.Parameters.AddWithValue("@DayCareFee", Convert.ToDecimal(model.DayCareFee));
-                    cmd.Parameters.AddWithValue("@NoOfInvoice", Convert.ToInt32(model.NoOfInvoice));
+                    cmd.Parameters.Add(new SqlParameter("@DayCareFee", SqlDbType.Decimal) { Value = model.DayCareFee });
+                    cmd.Parameters.Add(new SqlParameter("@NoOfInvoice", SqlDbType.Int) { Value = model.NoOfInvoice });
                     cmd.Parameters.AddWithValue("@InvoiceDate1", model.InvoiceDate1.HasValue ? (object)model.InvoiceDate1.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@InvoiceDate2", model.InvoiceDate2.HasValue ? (object)model.InvoiceDate2.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@InvoiceDate3", model.InvoiceDate3.HasValue ? (object)model.InvoiceDate3.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@ModeOfPayment", model.ModeOfPayment);
                     cmd.Parameters.AddWithValue("@ModeOfPaymentOthers", model.ModeOfPaymentOthers != null ? (object)model.ModeOfPaymentOthers : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@HardCopy", (object)(model.HardCopy ? 1 : 0));
+                    cmd.Parameters.Add(new SqlParameter("@HardCopy", SqlDbType.Bit) { Value = model.HardCopy });
                     cmd.Parameters.AddWithValue("@TermDuration", model.TermDuration);
-                    cmd.Parameters.AddWithValue("@BillType", (object)MapBillTypeToInt(model.BillType));
+                    cmd.Parameters.Add(new SqlParameter("@BillType", SqlDbType.Int) { Value = MapBillTypeToInt(model.BillType) });
                     cmd.Parameters.AddWithValue("@EntryDate", DateTime.Now);
                     cmd.Parameters.AddWithValue("@Quarter", quarter);
                     cmd.Parameters.AddWithValue("@FinYear", year);
@@ -169,10 +168,10 @@ namespace DayCareApi.Repositories
             var reimbursements = new List<DayCareReimbursement>();
             using (var connection = new SqlConnection(_connectionString))
             {
-                using (var cmd = new SqlCommand("DayCareSupportReimbursement_GetDataByDayCareData", connection))
+                using (var cmd = new SqlCommand("DayCareSupportReimbursement_GetDayCareData", connection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@EmpID", initiatorEmpId); 
+                    cmd.Parameters.AddWithValue("@MEmpID", initiatorEmpId); 
                     await connection.OpenAsync();
                     using (var reader = await cmd.ExecuteReaderAsync())
                     {
