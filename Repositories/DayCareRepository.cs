@@ -17,9 +17,18 @@ namespace DayCareApi.Repositories
             _connectionString = configuration.GetConnectionString("DefaultConnection");
         }
 
-        // This is the private method that was causing the error. It must be inside this class.
-        private int MapBillTypeToInt(string billType)
+        private int MapBillTypeToInt(string? billType)
         {
+            if (string.IsNullOrEmpty(billType))
+            {
+                return 0;
+            }
+
+            if (int.TryParse(billType, out int billTypeInt))
+            {
+                return billTypeInt;
+            }
+
             switch (billType)
             {
                 case "Monthly": return 1;
@@ -49,21 +58,24 @@ namespace DayCareApi.Repositories
                     cmd.Parameters.AddWithValue("@DCID", 0);
                     cmd.Parameters.AddWithValue("@NameOfChild", model.NameOfChild);
                     cmd.Parameters.AddWithValue("@DOB", model.DOB);
-                    cmd.Parameters.AddWithValue("@AgeYear", model.AgeYear);
-                    cmd.Parameters.AddWithValue("@AgeMonth", model.AgeMonth);
+                    // Corrected: Explicitly cast numeric values
+                    cmd.Parameters.AddWithValue("@AgeYear", Convert.ToInt32(model.AgeYear));
+                    cmd.Parameters.AddWithValue("@AgeMonth", Convert.ToInt32(model.AgeMonth));
                     cmd.Parameters.AddWithValue("@NameOfDayCare", model.NameOfDayCare);
                     cmd.Parameters.AddWithValue("@AdmissionType", model.AdmissionType);
                     cmd.Parameters.AddWithValue("@AdmissionTypeOthers", model.AdmissionTypeOthers != null ? (object)model.AdmissionTypeOthers : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@DayCareFee", model.DayCareFee);
-                    cmd.Parameters.AddWithValue("@BillType", MapBillTypeToInt(model.BillType ?? string.Empty));
-                    cmd.Parameters.AddWithValue("@NoOfInvoice", model.NoOfInvoice);
+                    // Corrected: Explicitly cast DayCareFee
+                    cmd.Parameters.AddWithValue("@DayCareFee", Convert.ToDecimal(model.DayCareFee));
+                    cmd.Parameters.AddWithValue("@BillType", (object)MapBillTypeToInt(model.BillType));
+                    // Corrected: Explicitly cast NoOfInvoice
+                    cmd.Parameters.AddWithValue("@NoOfInvoice", Convert.ToInt32(model.NoOfInvoice));
                     cmd.Parameters.AddWithValue("@InvoiceDate1", model.InvoiceDate1.HasValue ? (object)model.InvoiceDate1.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@InvoiceDate2", model.InvoiceDate2.HasValue ? (object)model.InvoiceDate2.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@InvoiceDate3", model.InvoiceDate3.HasValue ? (object)model.InvoiceDate3.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@InvoiceDate4", DBNull.Value);
                     cmd.Parameters.AddWithValue("@ModeOfPayment", model.ModeOfPayment);
                     cmd.Parameters.AddWithValue("@ModeOfPaymentOthers", model.ModeOfPaymentOthers != null ? (object)model.ModeOfPaymentOthers : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@HardCopy", model.HardCopy);
+                    cmd.Parameters.AddWithValue("@HardCopy", (object)(model.HardCopy ? 1 : 0));
                     cmd.Parameters.AddWithValue("@TermDuration", model.TermDuration);
                     cmd.Parameters.AddWithValue("@EntryDate", DateTime.Now);
                     cmd.Parameters.AddWithValue("@FileIndexID", "");
@@ -93,21 +105,23 @@ namespace DayCareApi.Repositories
                     cmd.Parameters.AddWithValue("@DCID", model.DCID);
                     cmd.Parameters.AddWithValue("@NameOfChild", model.NameOfChild);
                     cmd.Parameters.AddWithValue("@DOB", model.DOB);
-                    cmd.Parameters.AddWithValue("@AgeYear", model.AgeYear);
-                    cmd.Parameters.AddWithValue("@AgeMonth", model.AgeMonth);
+                    // Corrected: Explicitly cast numeric values
+                    cmd.Parameters.AddWithValue("@AgeYear", Convert.ToInt32(model.AgeYear));
+                    cmd.Parameters.AddWithValue("@AgeMonth", Convert.ToInt32(model.AgeMonth));
                     cmd.Parameters.AddWithValue("@NameOfDayCare", model.NameOfDayCare);
                     cmd.Parameters.AddWithValue("@AdmissionType", model.AdmissionType);
                     cmd.Parameters.AddWithValue("@AdmissionTypeOthers", model.AdmissionTypeOthers != null ? (object)model.AdmissionTypeOthers : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@DayCareFee", model.DayCareFee);
-                    cmd.Parameters.AddWithValue("@NoOfInvoice", model.NoOfInvoice);
+                    // Corrected: Explicitly cast DayCareFee
+                    cmd.Parameters.AddWithValue("@DayCareFee", Convert.ToDecimal(model.DayCareFee));
+                    cmd.Parameters.AddWithValue("@NoOfInvoice", Convert.ToInt32(model.NoOfInvoice));
                     cmd.Parameters.AddWithValue("@InvoiceDate1", model.InvoiceDate1.HasValue ? (object)model.InvoiceDate1.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@InvoiceDate2", model.InvoiceDate2.HasValue ? (object)model.InvoiceDate2.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@InvoiceDate3", model.InvoiceDate3.HasValue ? (object)model.InvoiceDate3.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@ModeOfPayment", model.ModeOfPayment);
                     cmd.Parameters.AddWithValue("@ModeOfPaymentOthers", model.ModeOfPaymentOthers != null ? (object)model.ModeOfPaymentOthers : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@HardCopy", model.HardCopy);
+                    cmd.Parameters.AddWithValue("@HardCopy", (object)(model.HardCopy ? 1 : 0));
                     cmd.Parameters.AddWithValue("@TermDuration", model.TermDuration);
-                    cmd.Parameters.AddWithValue("@BillType", MapBillTypeToInt(model.BillType ?? string.Empty));
+                    cmd.Parameters.AddWithValue("@BillType", (object)MapBillTypeToInt(model.BillType));
                     cmd.Parameters.AddWithValue("@EntryDate", DateTime.Now);
                     cmd.Parameters.AddWithValue("@Quarter", quarter);
                     cmd.Parameters.AddWithValue("@FinYear", year);
