@@ -30,7 +30,7 @@ namespace DayCareApi.Repositories
                 return billTypeInt;
             }
 
-            switch (billType.ToLower()) // Use ToLower() for case-insensitive matching
+            switch (billType.ToLower())
             {
                 case "monthly": return 1;
                 case "quarterly": return 2;
@@ -184,7 +184,7 @@ namespace DayCareApi.Repositories
             var reimbursements = new List<DayCareReimbursement>();
             using (var connection = new SqlConnection(_connectionString))
             {
-                using (var cmd = new SqlCommand("DayCareSupportReimbursement_GetDataByDayCareData", connection))
+                using (var cmd = new SqlCommand("DayCareSupportReimbursement_GetDayCareData", connection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@EmpID", initiatorEmpId); 
@@ -206,7 +206,7 @@ namespace DayCareApi.Repositories
                                 AdmissionTypeOthers = reader.IsDBNull("AdmissionTypeOthers") ? null : reader.GetString("AdmissionTypeOthers"),
                                 DayCareFee = reader.IsDBNull("DayCareFee") ? null : (decimal?)reader.GetDecimal("DayCareFee"),
                                 TermDuration = reader.IsDBNull("TermDuration") ? null : reader.GetString("TermDuration"),
-                                BillType = MapBillTypeToString(reader["BillType"] as int?), // Corrected line
+                                BillType = MapBillTypeToString(reader["BillType"] as int?),
                                 NoOfInvoice = reader.IsDBNull("NoOfInvoice") ? null : (int?)reader["NoOfInvoice"],
                                 InvoiceDate1 = reader.IsDBNull("InvoiceDate1") ? null : (DateTime?)reader.GetDateTime("InvoiceDate1"),
                                 InvoiceDate2 = reader.IsDBNull("InvoiceDate2") ? null : (DateTime?)reader.GetDateTime("InvoiceDate2"),
