@@ -24,21 +24,39 @@ namespace DayCareApi.Repositories
                 return 0;
             }
 
+            // Check if the string is already a number
             if (int.TryParse(billType, out int billTypeInt))
             {
                 return billTypeInt;
             }
 
-            switch (billType)
+            switch (billType.ToLower()) // Use ToLower() for case-insensitive matching
             {
-                case "Monthly": return 1;
-                case "Quarterly": return 2;
-                case "Half Yearly": return 3;
-                case "Annually": return 4;
+                case "monthly": return 1;
+                case "quarterly": return 2;
+                case "half yearly": return 3;
+                case "annually": return 4;
                 default: return 0;
             }
         }
 
+        private string MapBillTypeToString(int? billTypeInt)
+        {
+            if (!billTypeInt.HasValue)
+            {
+                return string.Empty;
+            }
+
+            switch (billTypeInt.Value)
+            {
+                case 1: return "Monthly";
+                case 2: return "Quarterly";
+                case 3: return "Half Yearly";
+                case 4: return "Annually";
+                default: return string.Empty;
+            }
+        }
+        
         public async Task<int> AddChildAsync(DayCareReimbursement model, int initiatorEmpId)
         {
             using (var connection = new SqlConnection(_connectionString))
@@ -58,14 +76,14 @@ namespace DayCareApi.Repositories
                     cmd.Parameters.AddWithValue("@RID", 0);
                     cmd.Parameters.AddWithValue("@DCID", 0);
                     cmd.Parameters.AddWithValue("@NameOfChild", model.NameOfChild);
-                    cmd.Parameters.AddWithValue("@DOB", model.DOB);
+                    cmd.Parameters.AddWithValue("@DOB", model.DOB.HasValue ? (object)model.DOB.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@AgeYear", model.AgeYear ?? 0);
                     cmd.Parameters.AddWithValue("@AgeMonth", model.AgeMonth ?? 0);
                     cmd.Parameters.AddWithValue("@NameOfDayCare", model.NameOfDayCare);
                     cmd.Parameters.AddWithValue("@AdmissionType", model.AdmissionType);
                     cmd.Parameters.AddWithValue("@AdmissionTypeOthers", model.AdmissionTypeOthers != null ? (object)model.AdmissionTypeOthers : DBNull.Value);
                     cmd.Parameters.AddWithValue("@DayCareFee", model.DayCareFee ?? 0);
-                    cmd.Parameters.AddWithValue("@BillType", MapBillTypeToInt(model.BillType)); // Corrected line
+                    cmd.Parameters.AddWithValue("@BillType", MapBillTypeToInt(model.BillType));
                     cmd.Parameters.AddWithValue("@NoOfInvoice", model.NoOfInvoice ?? 0);
                     cmd.Parameters.AddWithValue("@InvoiceDate1", model.InvoiceDate1.HasValue ? (object)model.InvoiceDate1.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@InvoiceDate2", model.InvoiceDate2.HasValue ? (object)model.InvoiceDate2.Value : DBNull.Value);
@@ -99,10 +117,11 @@ namespace DayCareApi.Repositories
                     cmd.CommandType = CommandType.StoredProcedure;
                     var quarter = await GetQuarterAsync(DateTime.Now, DateTime.Now);
                     var year = (quarter == 4) ? DateTime.Now.Year - 1 : DateTime.Now.Year;
+                    
                     cmd.Parameters.AddWithValue("@RID", model.RID.HasValue ? (object)model.RID.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@DCID", model.DCID.HasValue ? (object)model.DCID.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@NameOfChild", model.NameOfChild);
-                    cmd.Parameters.AddWithValue("@DOB", model.DOB);
+                    cmd.Parameters.AddWithValue("@DOB", model.DOB.HasValue ? (object)model.DOB.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@AgeYear", model.AgeYear ?? 0);
                     cmd.Parameters.AddWithValue("@AgeMonth", model.AgeMonth ?? 0);
                     cmd.Parameters.AddWithValue("@NameOfDayCare", model.NameOfDayCare);
@@ -117,7 +136,7 @@ namespace DayCareApi.Repositories
                     cmd.Parameters.AddWithValue("@ModeOfPaymentOthers", model.ModeOfPaymentOthers != null ? (object)model.ModeOfPaymentOthers : DBNull.Value);
                     cmd.Parameters.AddWithValue("@HardCopy", model.HardCopy ?? false);
                     cmd.Parameters.AddWithValue("@TermDuration", model.TermDuration);
-                    cmd.Parameters.AddWithValue("@BillType", MapBillTypeToInt(model.BillType)); // Corrected line
+                    cmd.Parameters.AddWithValue("@BillType", MapBillTypeToInt(model.BillType));
                     cmd.Parameters.AddWithValue("@EntryDate", DateTime.Now);
                     cmd.Parameters.AddWithValue("@Quarter", quarter);
                     cmd.Parameters.AddWithValue("@FinYear", year);
@@ -168,7 +187,7 @@ namespace DayCareApi.Repositories
                 using (var cmd = new SqlCommand("DayCareSupportReimbursement_GetDataByDayCareData", connection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@EmpID", initiatorEmpId);
+                    cmd.Parameters.AddWithValue("@EmpID", initiatorEmpId); 
                     await connection.OpenAsync();
                     using (var reader = await cmd.ExecuteReaderAsync())
                     {
@@ -176,25 +195,25 @@ namespace DayCareApi.Repositories
                         {
                             reimbursements.Add(new DayCareReimbursement
                             {
-                                RID = reader["RID"] as int?,
-                                DCID = reader["DCID"] as int?,
-                                NameOfChild = reader["NameOfChild"] as string,
-                                DOB = Convert.ToDateTime(reader["DOB"]),
-                                AgeYear = reader["AgeYear"] as int?,
-                                AgeMonth = reader["AgeMonth"] as int?,
-                                NameOfDayCare = reader["NameOfDayCare"] as string,
-                                AdmissionType = reader["AdmissionType"] as string,
-                                AdmissionTypeOthers = reader["AdmissionTypeOthers"] as string,
-                                DayCareFee = reader["DayCareFee"] as decimal?,
-                                TermDuration = reader["TermDuration"] as string,
-                                BillType = reader["BillType"] as string,
-                                NoOfInvoice = reader["NoOfInvoice"] as int?,
-                                InvoiceDate1 = reader["InvoiceDate1"] as DateTime?,
-                                InvoiceDate2 = reader["InvoiceDate2"] as DateTime?,
-                                InvoiceDate3 = reader["InvoiceDate3"] as DateTime?,
-                                ModeOfPayment = reader["ModeOfPayment"] as string,
-                                ModeOfPaymentOthers = reader["ModeOfPaymentOthers"] as string,
-                                HardCopy = reader["HardCopy"] as bool?
+                                RID = reader.IsDBNull("RID") ? null : (int?)reader["RID"],
+                                DCID = reader.IsDBNull("DCID") ? null : (int?)reader["DCID"],
+                                NameOfChild = reader.IsDBNull("NameOfChild") ? null : reader.GetString("NameOfChild"),
+                                DOB = reader.IsDBNull("DOB") ? null : (DateTime?)reader.GetDateTime("DOB"),
+                                AgeYear = reader.IsDBNull("AgeYear") ? null : (int?)reader["AgeYear"],
+                                AgeMonth = reader.IsDBNull("AgeMonth") ? null : (int?)reader["AgeMonth"],
+                                NameOfDayCare = reader.IsDBNull("NameOfDayCare") ? null : reader.GetString("NameOfDayCare"),
+                                AdmissionType = reader.IsDBNull("AdmissionType") ? null : reader.GetString("AdmissionType"),
+                                AdmissionTypeOthers = reader.IsDBNull("AdmissionTypeOthers") ? null : reader.GetString("AdmissionTypeOthers"),
+                                DayCareFee = reader.IsDBNull("DayCareFee") ? null : (decimal?)reader.GetDecimal("DayCareFee"),
+                                TermDuration = reader.IsDBNull("TermDuration") ? null : reader.GetString("TermDuration"),
+                                BillType = MapBillTypeToString(reader["BillType"] as int?), // Corrected line
+                                NoOfInvoice = reader.IsDBNull("NoOfInvoice") ? null : (int?)reader["NoOfInvoice"],
+                                InvoiceDate1 = reader.IsDBNull("InvoiceDate1") ? null : (DateTime?)reader.GetDateTime("InvoiceDate1"),
+                                InvoiceDate2 = reader.IsDBNull("InvoiceDate2") ? null : (DateTime?)reader.GetDateTime("InvoiceDate2"),
+                                InvoiceDate3 = reader.IsDBNull("InvoiceDate3") ? null : (DateTime?)reader.GetDateTime("InvoiceDate3"),
+                                ModeOfPayment = reader.IsDBNull("ModeOfPayment") ? null : reader.GetString("ModeOfPayment"),
+                                ModeOfPaymentOthers = reader.IsDBNull("ModeOfPaymentOthers") ? null : reader.GetString("ModeOfPaymentOthers"),
+                                HardCopy = reader.IsDBNull("HardCopy") ? null : (bool?)reader.GetBoolean("HardCopy")
                             });
                         }
                     }
@@ -218,7 +237,7 @@ namespace DayCareApi.Repositories
                 }
             }
         }
-
+        
         public Task<IEnumerable<string>> GetBillTypesAsync()
         {
             var billTypes = new List<string> { "Monthly", "Quarterly", "Half Yearly", "Annually" };
