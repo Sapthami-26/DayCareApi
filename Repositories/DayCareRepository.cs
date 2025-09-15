@@ -39,6 +39,32 @@ namespace DayCareApi.Repositories
             }
         }
 
+        private decimal SafeParseDecimal(object? value)
+        {
+            if (value == null || value == DBNull.Value)
+            {
+                return 0m;
+            }
+            if (decimal.TryParse(value.ToString()?.Replace(",", ""), out decimal result))
+            {
+                return result;
+            }
+            return 0m;
+        }
+
+        private int SafeParseInt(object? value)
+        {
+            if (value == null || value == DBNull.Value)
+            {
+                return 0;
+            }
+            if (int.TryParse(value.ToString(), out int result))
+            {
+                return result;
+            }
+            return 0;
+        }
+
         public async Task<int> AddChildAsync(DayCareReimbursement model, int initiatorEmpId)
         {
             using (var connection = new SqlConnection(_connectionString))
@@ -49,7 +75,6 @@ namespace DayCareApi.Repositories
                     var quarter = await GetQuarterAsync(DateTime.Now, DateTime.Now);
                     var year = (quarter == 4) ? DateTime.Now.Year - 1 : DateTime.Now.Year;
 
-                    // Add parameters with explicit type conversions to prevent nvarchar errors
                     cmd.Parameters.AddWithValue("@InstanceID", 0);
                     cmd.Parameters.AddWithValue("@InitiatorMEmpID", initiatorEmpId);
                     cmd.Parameters.AddWithValue("@GroupMGID", 0);
@@ -60,21 +85,21 @@ namespace DayCareApi.Repositories
                     cmd.Parameters.AddWithValue("@DCID", 0);
                     cmd.Parameters.AddWithValue("@NameOfChild", model.NameOfChild);
                     cmd.Parameters.AddWithValue("@DOB", model.DOB);
-                    cmd.Parameters.AddWithValue("@AgeYear", Convert.ToInt32(model.AgeYear));
-                    cmd.Parameters.AddWithValue("@AgeMonth", Convert.ToInt32(model.AgeMonth));
+                    cmd.Parameters.AddWithValue("@AgeYear", SafeParseInt(model.AgeYear));
+                    cmd.Parameters.AddWithValue("@AgeMonth", SafeParseInt(model.AgeMonth));
                     cmd.Parameters.AddWithValue("@NameOfDayCare", model.NameOfDayCare);
                     cmd.Parameters.AddWithValue("@AdmissionType", model.AdmissionType);
                     cmd.Parameters.AddWithValue("@AdmissionTypeOthers", model.AdmissionTypeOthers != null ? (object)model.AdmissionTypeOthers : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@DayCareFee", Convert.ToDecimal(model.DayCareFee));
-                    cmd.Parameters.AddWithValue("@BillType", (object)MapBillTypeToInt(model.BillType));
-                    cmd.Parameters.AddWithValue("@NoOfInvoice", Convert.ToInt32(model.NoOfInvoice));
+                    cmd.Parameters.AddWithValue("@DayCareFee", SafeParseDecimal(model.DayCareFee));
+                    cmd.Parameters.AddWithValue("@BillType", MapBillTypeToInt(model.BillType));
+                    cmd.Parameters.AddWithValue("@NoOfInvoice", SafeParseInt(model.NoOfInvoice));
                     cmd.Parameters.AddWithValue("@InvoiceDate1", model.InvoiceDate1.HasValue ? (object)model.InvoiceDate1.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@InvoiceDate2", model.InvoiceDate2.HasValue ? (object)model.InvoiceDate2.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@InvoiceDate3", model.InvoiceDate3.HasValue ? (object)model.InvoiceDate3.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@InvoiceDate4", DBNull.Value);
                     cmd.Parameters.AddWithValue("@ModeOfPayment", model.ModeOfPayment);
                     cmd.Parameters.AddWithValue("@ModeOfPaymentOthers", model.ModeOfPaymentOthers != null ? (object)model.ModeOfPaymentOthers : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@HardCopy", (object)(model.HardCopy ? 1 : 0));
+                    cmd.Parameters.AddWithValue("@HardCopy", model.HardCopy);
                     cmd.Parameters.AddWithValue("@TermDuration", model.TermDuration);
                     cmd.Parameters.AddWithValue("@EntryDate", DateTime.Now);
                     cmd.Parameters.AddWithValue("@FileIndexID", "");
@@ -101,24 +126,23 @@ namespace DayCareApi.Repositories
                     var quarter = await GetQuarterAsync(DateTime.Now, DateTime.Now);
                     var year = (quarter == 4) ? DateTime.Now.Year - 1 : DateTime.Now.Year;
 
-                    // Add parameters with explicit type conversions to prevent nvarchar errors
                     cmd.Parameters.AddWithValue("@RID", model.RID.HasValue ? (object)model.RID.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@DCID", model.DCID.HasValue ? (object)model.DCID.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@NameOfChild", model.NameOfChild);
                     cmd.Parameters.AddWithValue("@DOB", model.DOB);
-                    cmd.Parameters.AddWithValue("@AgeYear", Convert.ToInt32(model.AgeYear));
-                    cmd.Parameters.AddWithValue("@AgeMonth", Convert.ToInt32(model.AgeMonth));
+                    cmd.Parameters.AddWithValue("@AgeYear", SafeParseInt(model.AgeYear));
+                    cmd.Parameters.AddWithValue("@AgeMonth", SafeParseInt(model.AgeMonth));
                     cmd.Parameters.AddWithValue("@NameOfDayCare", model.NameOfDayCare);
                     cmd.Parameters.AddWithValue("@AdmissionType", model.AdmissionType);
                     cmd.Parameters.AddWithValue("@AdmissionTypeOthers", model.AdmissionTypeOthers != null ? (object)model.AdmissionTypeOthers : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@DayCareFee", Convert.ToDecimal(model.DayCareFee));
-                    cmd.Parameters.AddWithValue("@NoOfInvoice", Convert.ToInt32(model.NoOfInvoice));
+                    cmd.Parameters.AddWithValue("@DayCareFee", SafeParseDecimal(model.DayCareFee));
+                    cmd.Parameters.AddWithValue("@NoOfInvoice", SafeParseInt(model.NoOfInvoice));
                     cmd.Parameters.AddWithValue("@InvoiceDate1", model.InvoiceDate1.HasValue ? (object)model.InvoiceDate1.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@InvoiceDate2", model.InvoiceDate2.HasValue ? (object)model.InvoiceDate2.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@InvoiceDate3", model.InvoiceDate3.HasValue ? (object)model.InvoiceDate3.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@ModeOfPayment", model.ModeOfPayment);
                     cmd.Parameters.AddWithValue("@ModeOfPaymentOthers", model.ModeOfPaymentOthers != null ? (object)model.ModeOfPaymentOthers : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@HardCopy", (object)(model.HardCopy ? 1 : 0));
+                    cmd.Parameters.AddWithValue("@HardCopy", model.HardCopy);
                     cmd.Parameters.AddWithValue("@TermDuration", model.TermDuration);
                     cmd.Parameters.AddWithValue("@BillType", (object)MapBillTypeToInt(model.BillType));
                     cmd.Parameters.AddWithValue("@EntryDate", DateTime.Now);
@@ -168,10 +192,10 @@ namespace DayCareApi.Repositories
             var reimbursements = new List<DayCareReimbursement>();
             using (var connection = new SqlConnection(_connectionString))
             {
-                using (var cmd = new SqlCommand("DayCareSupportReimbursement_GetDayCareData", connection))
+                using (var cmd = new SqlCommand("DayCareSupportReimbursement_GetDataByDayCareData", connection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@MEmpID", initiatorEmpId); 
+                    cmd.Parameters.AddWithValue("@EmpID", initiatorEmpId); 
                     await connection.OpenAsync();
                     using (var reader = await cmd.ExecuteReaderAsync())
                     {
