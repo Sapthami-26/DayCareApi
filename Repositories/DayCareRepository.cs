@@ -58,22 +58,22 @@ namespace DayCareApi.Repositories
                     cmd.Parameters.AddWithValue("@RID", 0);
                     cmd.Parameters.AddWithValue("@DCID", 0);
                     cmd.Parameters.AddWithValue("@NameOfChild", model.NameOfChild);
-                    cmd.Parameters.AddWithValue("@DOB", model.DOB.HasValue ? (object)model.DOB.Value : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@AgeYear", model.AgeYear.HasValue ? (object)model.AgeYear.Value : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@AgeMonth", model.AgeMonth.HasValue ? (object)model.AgeMonth.Value : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@DOB", model.DOB);
+                    cmd.Parameters.AddWithValue("@AgeYear", model.AgeYear ?? 0);
+                    cmd.Parameters.AddWithValue("@AgeMonth", model.AgeMonth ?? 0);
                     cmd.Parameters.AddWithValue("@NameOfDayCare", model.NameOfDayCare);
                     cmd.Parameters.AddWithValue("@AdmissionType", model.AdmissionType);
                     cmd.Parameters.AddWithValue("@AdmissionTypeOthers", model.AdmissionTypeOthers != null ? (object)model.AdmissionTypeOthers : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@DayCareFee", model.DayCareFee.HasValue ? (object)model.DayCareFee.Value : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@DayCareFee", model.DayCareFee ?? 0);
                     cmd.Parameters.AddWithValue("@BillType", (object)MapBillTypeToInt(model.BillType));
-                    cmd.Parameters.AddWithValue("@NoOfInvoice", model.NoOfInvoice.HasValue ? (object)model.NoOfInvoice.Value : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@NoOfInvoice", model.NoOfInvoice ?? 0);
                     cmd.Parameters.AddWithValue("@InvoiceDate1", model.InvoiceDate1.HasValue ? (object)model.InvoiceDate1.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@InvoiceDate2", model.InvoiceDate2.HasValue ? (object)model.InvoiceDate2.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@InvoiceDate3", model.InvoiceDate3.HasValue ? (object)model.InvoiceDate3.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@InvoiceDate4", DBNull.Value);
                     cmd.Parameters.AddWithValue("@ModeOfPayment", model.ModeOfPayment);
                     cmd.Parameters.AddWithValue("@ModeOfPaymentOthers", model.ModeOfPaymentOthers != null ? (object)model.ModeOfPaymentOthers : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@HardCopy", model.HardCopy.HasValue ? (object)(model.HardCopy.Value ? 1 : 0) : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@HardCopy", model.HardCopy ?? false);
                     cmd.Parameters.AddWithValue("@TermDuration", model.TermDuration);
                     cmd.Parameters.AddWithValue("@EntryDate", DateTime.Now);
                     cmd.Parameters.AddWithValue("@FileIndexID", "");
@@ -102,20 +102,20 @@ namespace DayCareApi.Repositories
                     cmd.Parameters.AddWithValue("@RID", model.RID.HasValue ? (object)model.RID.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@DCID", model.DCID.HasValue ? (object)model.DCID.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@NameOfChild", model.NameOfChild);
-                    cmd.Parameters.AddWithValue("@DOB", model.DOB.HasValue ? (object)model.DOB.Value : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@AgeYear", model.AgeYear.HasValue ? (object)model.AgeYear.Value : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@AgeMonth", model.AgeMonth.HasValue ? (object)model.AgeMonth.Value : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@DOB", model.DOB);
+                    cmd.Parameters.AddWithValue("@AgeYear", model.AgeYear ?? 0);
+                    cmd.Parameters.AddWithValue("@AgeMonth", model.AgeMonth ?? 0);
                     cmd.Parameters.AddWithValue("@NameOfDayCare", model.NameOfDayCare);
                     cmd.Parameters.AddWithValue("@AdmissionType", model.AdmissionType);
                     cmd.Parameters.AddWithValue("@AdmissionTypeOthers", model.AdmissionTypeOthers != null ? (object)model.AdmissionTypeOthers : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@DayCareFee", model.DayCareFee.HasValue ? (object)model.DayCareFee.Value : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@NoOfInvoice", model.NoOfInvoice.HasValue ? (object)model.NoOfInvoice.Value : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@DayCareFee", model.DayCareFee ?? 0);
+                    cmd.Parameters.AddWithValue("@NoOfInvoice", model.NoOfInvoice ?? 0);
                     cmd.Parameters.AddWithValue("@InvoiceDate1", model.InvoiceDate1.HasValue ? (object)model.InvoiceDate1.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@InvoiceDate2", model.InvoiceDate2.HasValue ? (object)model.InvoiceDate2.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@InvoiceDate3", model.InvoiceDate3.HasValue ? (object)model.InvoiceDate3.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@ModeOfPayment", model.ModeOfPayment);
                     cmd.Parameters.AddWithValue("@ModeOfPaymentOthers", model.ModeOfPaymentOthers != null ? (object)model.ModeOfPaymentOthers : DBNull.Value);
-                    cmd.Parameters.AddWithValue("@HardCopy", model.HardCopy.HasValue ? (object)(model.HardCopy.Value ? 1 : 0) : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@HardCopy", model.HardCopy ?? false);
                     cmd.Parameters.AddWithValue("@TermDuration", model.TermDuration);
                     cmd.Parameters.AddWithValue("@BillType", (object)MapBillTypeToInt(model.BillType));
                     cmd.Parameters.AddWithValue("@EntryDate", DateTime.Now);
@@ -179,7 +179,7 @@ namespace DayCareApi.Repositories
                                 RID = reader["RID"] as int?,
                                 DCID = reader["DCID"] as int?,
                                 NameOfChild = reader["NameOfChild"] as string,
-                                DOB = reader["DOB"] as DateTime?,
+                                DOB = Convert.ToDateTime(reader["DOB"]),
                                 AgeYear = reader["AgeYear"] as int?,
                                 AgeMonth = reader["AgeMonth"] as int?,
                                 NameOfDayCare = reader["NameOfDayCare"] as string,
