@@ -65,7 +65,7 @@ namespace DayCareApi.Repositories
                     cmd.Parameters.AddWithValue("@AdmissionType", model.AdmissionType);
                     cmd.Parameters.AddWithValue("@AdmissionTypeOthers", model.AdmissionTypeOthers != null ? (object)model.AdmissionTypeOthers : DBNull.Value);
                     cmd.Parameters.AddWithValue("@DayCareFee", model.DayCareFee ?? 0);
-                    cmd.Parameters.AddWithValue("@BillType", (object)MapBillTypeToInt(model.BillType));
+                    cmd.Parameters.AddWithValue("@BillType", MapBillTypeToInt(model.BillType)); // Corrected line
                     cmd.Parameters.AddWithValue("@NoOfInvoice", model.NoOfInvoice ?? 0);
                     cmd.Parameters.AddWithValue("@InvoiceDate1", model.InvoiceDate1.HasValue ? (object)model.InvoiceDate1.Value : DBNull.Value);
                     cmd.Parameters.AddWithValue("@InvoiceDate2", model.InvoiceDate2.HasValue ? (object)model.InvoiceDate2.Value : DBNull.Value);
@@ -117,7 +117,7 @@ namespace DayCareApi.Repositories
                     cmd.Parameters.AddWithValue("@ModeOfPaymentOthers", model.ModeOfPaymentOthers != null ? (object)model.ModeOfPaymentOthers : DBNull.Value);
                     cmd.Parameters.AddWithValue("@HardCopy", model.HardCopy ?? false);
                     cmd.Parameters.AddWithValue("@TermDuration", model.TermDuration);
-                    cmd.Parameters.AddWithValue("@BillType", (object)MapBillTypeToInt(model.BillType));
+                    cmd.Parameters.AddWithValue("@BillType", MapBillTypeToInt(model.BillType)); // Corrected line
                     cmd.Parameters.AddWithValue("@EntryDate", DateTime.Now);
                     cmd.Parameters.AddWithValue("@Quarter", quarter);
                     cmd.Parameters.AddWithValue("@FinYear", year);
@@ -168,7 +168,7 @@ namespace DayCareApi.Repositories
                 using (var cmd = new SqlCommand("DayCareSupportReimbursement_GetDataByDayCareData", connection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@EmpID", initiatorEmpId); 
+                    cmd.Parameters.AddWithValue("@EmpID", initiatorEmpId);
                     await connection.OpenAsync();
                     using (var reader = await cmd.ExecuteReaderAsync())
                     {
@@ -218,7 +218,7 @@ namespace DayCareApi.Repositories
                 }
             }
         }
-        
+
         public Task<IEnumerable<string>> GetBillTypesAsync()
         {
             var billTypes = new List<string> { "Monthly", "Quarterly", "Half Yearly", "Annually" };
